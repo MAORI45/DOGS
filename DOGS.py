@@ -5,6 +5,7 @@ from tkinter import Tk, Toplevel, messagebox, Button, Label
 from tkinter import ttk
 from PIL import Image, ImageTk
 from io import BytesIO
+import random
 
 
 def get_dog_image():
@@ -19,6 +20,7 @@ def get_dog_image():
 
 
 def show_image():
+    status_label.config(text="Загрузка...")
     image_url = get_dog_image() # отправляем функцию в функцию которая пришлет ссылку
     if image_url: # если ссылка не пустая
         try:
@@ -37,6 +39,11 @@ def show_image():
             messagebox.showerror("Ошибка", f"Возникла ошибка при загрузке изображений: {e}")
 
 
+def get_random_color():
+    # Генерируем случайный цвет в формате HEX (#RRGGBB)
+    return f"#{random.randint(0, 255):02x}{random.randint(0, 255):02x}{random.randint(0, 255):02x}"
+
+
 def extract_breed():
     try:
         url = get_dog_image()
@@ -47,7 +54,8 @@ def extract_breed():
         breed = url[start:end]  # Вырезаем подстроку между start и end
         if not breed:
             raise ValueError("Не удалось извлечь породу")
-        label1.config(text=breed) # Сначала обновляем Label
+        label1.config(text=breed, font=("Arial", 10, "bold")) # Сначала обновляем Label
+        label1.config(fg=get_random_color()) # рандомные цвета отключить вместе с функцией
         return breed
 
     except Exception as e:
@@ -55,17 +63,30 @@ def extract_breed():
         return None
 
 
+def start_progress():
+    progress['value'] = 0
+    progress.start(30)
+    window.after(3000, lambda: [progress.stop(), show_image()])
+
+
 window = Tk() # кладем в переменную
 window.title("Случайное изображение")
 window.geometry("360x420")
+
 label1 = Label()
 label1.pack(pady=10)
 
 label = Label()
 label.pack(pady=10)
 
-button = Button(text="Загрузить изображение", command=show_image)
-button.pack(pady=10)
+button = ttk.Button(window, text="Загрузить изображение", command=start_progress)
+button.pack(padx=10,pady=10)
+
+status_label = ttk.Label(window, text="")
+status_label.pack(padx=10, pady=5)
+
+progress = ttk.Progressbar(window, mode='determinate', length=300)
+progress.pack(padx=10, pady=5)
 
 width_label = ttk.Label(window, text="Ширина:")
 width_label.pack(side='left', padx=(10, 0))
