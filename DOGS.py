@@ -1,4 +1,9 @@
-# http://dogs.ceo
+# http://dogs.ceo проект работа со ссылками
+import requests
+from tkinter import Tk, Toplevel, messagebox
+from tkinter import ttk
+from PIL import Image, ImageTk
+from io import BytesIO
 
 
 
@@ -7,7 +12,7 @@ def extract_breed ():
         url = "https://images.dog.ceo/breeds/hound-ibizan/n02091244_966.jpg"
         start = url.find('breeds/') + len('breeds/')  # Находим начало названия породы
         end = url.find('/', start)  # Находим следующий слеш '/'
-        if start == -1 or end == -1:
+        if start == -1 or end == -1: # смотрим, что и breeds присутствует и после слеша информацмя
             raise ValueError("URL не содержит информацию о породе")
         breed = url[start:end]  # Вырезаем подстроку между start и end
         if not breed:
@@ -17,6 +22,3 @@ def extract_breed ():
 
     except Exception as e:
         raise ValueError(f"Ошибка обработки URL: {str(e)}")
-
-# translation_str = str(translation)
-# print(translation_str)  # Выводим: hound-ibizan
