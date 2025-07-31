@@ -7,6 +7,18 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from io import BytesIO
 
+
+def get_dog_image():
+    try:
+        response = requests.get("https://dog.ceo/api/breeds/image/random")  # что-то по ссылке
+        response.raise_for_status()  # обрабатываем ошибку или статус ответа
+        data = response.json()
+        return data ['message']
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Возникла ошибка при запросе к API: {e}")
+        return None
+
+
 def show_image():
     image_url = get_dog_image() # отправляем функцию в функцию которая пришлет ссылку
     if image_url: # если ссылка не пустая
@@ -19,12 +31,12 @@ def show_image():
             label.config(image=img) # положить в метку картинку
             label.image = img # чтобы картинка осталась в памяти
         except Exception as e:
-            messagebox.showerror("Ошибка", f"Возникла ошибка: {e}")
+            messagebox.showerror("Ошибка", f"Возникла ошибка при загрузке изображений: {e}")
 
 
 def extract_breed ():
     try:
-        url = "https://images.dog.ceo/breeds/hound-ibizan/n02091244_966.jpg"
+        url = get_dog_image()
         start = url.find('breeds/') + len('breeds/')  # Находим начало названия породы
         end = url.find('/', start)  # Находим следующий слеш '/'
         if start == -1 or end == -1: # смотрим, что и breeds присутствует и после слеша информацмя
@@ -36,7 +48,7 @@ def extract_breed ():
         return breed
 
     except Exception as e:
-        raise ValueError(f"Ошибка обработки URL: {str(e)}")
+        raise ValueError(f"Ошибка обработки URL: {e}")
 
 
 window = Tk() # кладем в переменную
