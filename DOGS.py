@@ -1,4 +1,5 @@
 # http://dogs.ceo проект работа со ссылками
+
 import requests
 from tkinter import Tk, Toplevel, messagebox
 from tkinter import ttk
@@ -22,3 +23,16 @@ def extract_breed ():
 
     except Exception as e:
         raise ValueError(f"Ошибка обработки URL: {str(e)}")
+
+
+window = Tk() # кладем в переменную
+window.title("Случайное изображение")
+window.geometry("360x420")
+
+label = Label()
+label.pack(pady=10)
+
+button = Button(text="Загрузить изображение", command=show_imedge)
+button.pack(pady=10)
+
+window.mainloop()
