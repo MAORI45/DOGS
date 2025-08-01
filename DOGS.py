@@ -38,7 +38,7 @@ def show_image():
             label = ttk.Label(tab, image=img) # положить в метку-вкладку картинку
             label.image = img # чтобы картинка осталась в памяти
             label.pack(padx=10, pady=10)
-
+            notebook.select(tab)  # Теперь вкладка открывается и показывается
             status_label.config(text="")
         except requests.RequestException as e:
             messagebox.showerror("Ошибка", f"Не удалось загрузить изображение: {e}")
