@@ -22,6 +22,7 @@ def get_dog_image():
 def show_image():
     status_label.config(text="Загрузка...")
     image_url = get_dog_image() # отправляем функцию в функцию которая пришлет ссылку
+
     if image_url: # если ссылка не пустая
         try:
             response = requests.get(image_url, stream=True) # что-то по ссылке
@@ -31,13 +32,16 @@ def show_image():
             img_size = (int(width_spinbox.get()), int(height_spinbox.get()))
             img.thumbnail(img_size) # размер картинки - ее сжатие?
             img = ImageTk.PhotoImage(img)
-            label.config(image=img) # положить в метку картинку
+            breed = extract_breed() or "Дворянин"
+            tab = ttk.Frame(notebook)
+            notebook.add(tab, text=f"Изображение {breed} {notebook.index('end') + 1}")
+            label = ttk.Label(tab, image=img) # положить в метку-вкладку картинку
             label.image = img # чтобы картинка осталась в памяти
-            extract_breed()
+            label.pack(padx=10, pady=10)
 
-        except Exception as e:
-            messagebox.showerror("Ошибка", f"Возникла ошибка при загрузке изображений: {e}")
-
+            status_label.config(text="")
+        except requests.RequestException as e:
+            messagebox.showerror("Ошибка", f"Не удалось загрузить изображение: {e}")
 
 def get_random_color():
     # Генерируем случайный цвет в формате HEX (#RRGGBB)
@@ -69,33 +73,63 @@ def start_progress():
     window.after(3000, lambda: [progress.stop(), show_image()])
 
 
-window = Tk() # кладем в переменную
+window = Tk()
 window.title("Случайное изображение")
-window.geometry("360x420")
+window.geometry("360x250+500+500")
 
-label1 = Label()
-label1.pack(pady=10)
+# Метка для названия породы
+label1 = Label(window)
+label1.pack(pady=5)
 
-label = Label()
-label.pack(pady=10)
+# Прогресс-бар
+progress_frame = ttk.Frame(window)
+progress_frame.pack(fill='x', pady=5)
+progress = ttk.Progressbar(progress_frame, mode='determinate', length=300)
+progress.pack(pady=5, anchor='center')
 
-button = ttk.Button(window, text="Загрузить изображение", command=start_progress)
-button.pack(padx=10,pady=10)
-
+# Статус-лейбл
 status_label = ttk.Label(window, text="")
-status_label.pack(padx=10, pady=5)
+status_label.pack(pady=5)
 
-progress = ttk.Progressbar(window, mode='determinate', length=300)
-progress.pack(padx=10, pady=5)
+# Фрейм для кнопок
+button_frame = ttk.Frame(window)
+button_frame.pack(fill='x', pady=10)
 
-width_label = ttk.Label(window, text="Ширина:")
+button = ttk.Button(button_frame, text="Загрузить изображение", command=start_progress)
+button.pack(side='left', padx=10, expand=True)
+
+delete_button = ttk.Button(button_frame, text="Удалить все вкладки",
+                         command=lambda: [notebook.forget(tab) for tab in notebook.tabs()])
+delete_button.pack(side='left', padx=10, expand=True)
+
+# Фрейм для настроек размеров
+size_frame = ttk.Frame(window)
+size_frame.pack(fill='x', pady=10)
+
+width_label = ttk.Label(size_frame, text="Ширина:")
 width_label.pack(side='left', padx=(10, 0))
-width_spinbox = ttk.Spinbox(window, from_=200, to=500, increment=50, width=5)
-width_spinbox.pack(side='left', padx=(0, 10))
 
-height_label = ttk.Label(window, text="Высота:")
+width_spinbox = ttk.Spinbox(size_frame, from_=200, to=500, increment=50, width=5)
+width_spinbox.pack(side='left', padx=(0, 10))
+width_spinbox.set(300)  # Начальное значение 300
+
+height_label = ttk.Label(size_frame, text="Высота:")
 height_label.pack(side='left', padx=(10, 0))
-height_spinbox = ttk.Spinbox(window, from_=200, to=500, increment=50, width=5)
+
+height_spinbox = ttk.Spinbox(size_frame, from_=200, to=500, increment=50, width=5)
 height_spinbox.pack(side='left', padx=(0, 10))
+height_spinbox.set(300)  # Начальное значение 300
+
+# Метка для изображения (если нужна)
+label = Label(window)
+label.pack(pady=5)
+
+# Окно для Notebook
+top_level_window = Toplevel(window)
+top_level_window.title("Изображения пёсиков")
+top_level_window.geometry("400x400")
+
+notebook = ttk.Notebook(top_level_window)
+notebook.pack(expand=True, fill='both', padx=10, pady=10)
 
 window.mainloop()
